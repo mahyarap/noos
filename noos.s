@@ -39,12 +39,12 @@ _start:
 		call print_num
 		# ASCII code of +
 		push $43
-		call print_sym
+		call putch
 		push $202
 		call print_num
 		# ASCII code of =
 		push $61
-		call print_sym
+		call putch
 		# Do simple arithmetic
 		push $130
 		push $202
@@ -66,8 +66,8 @@ puts:
 		lodsb
 		or %al, %al
 		jz puts_done
-		mov $0xE, %ah
-		int $0x10
+		push %ax
+		call putch
 		jmp puts_loop
 	puts_done:
 		# Epilogue	
@@ -90,8 +90,8 @@ print_num:
 
 	print_sum_done:
 	add $48, %al
-	mov $0xE, %ah
-	int $0x10
+	push %ax
+	call putch
 
 	print_num_end:
 	mov %bp, %sp
@@ -122,15 +122,15 @@ _print_num:
 
 	mov %dl, %al
 	add $48, %al
-	mov $0xE, %ah
-	int $0x10
+	push %ax
+	call putch
 
 	_print_sum_done:
 	mov %bp, %sp
 	pop %bp
 	ret
 
-print_sym:
+putch:
 	push %bp
 	mov %sp, %bp
 
