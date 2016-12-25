@@ -5,9 +5,8 @@
 # The address the bootloader is loaded into
 .equ LOADOFF, 0x7C00
 
-# The magic number must be placed at 511th byte
-# of 1st sector. However some BIOS' do not require 
-# this number for floppy disks 
+# The magic number must be placed at 511th byte of the 1st sector. However some
+# BIOS' do not require this number for floppy disks.
 .equ MAGICNUM, 0xAA55
 
 .text
@@ -36,19 +35,19 @@ _start:
 		push $num_msg
 		call puts
 
-		push $2
+		push $130
 		call print_num
 		# ASCII code of +
 		push $43
 		call print_sym
-		push $3
+		push $202
 		call print_num
 		# ASCII code of =
 		push $61
 		call print_sym
 		# Do simple arithmetic
-		push $2
-		push $3
+		push $130
+		push $202
 		call sum
 		# Return value of sum
 		push %ax
@@ -76,15 +75,57 @@ puts:
 		pop %bp
 		ret
 
+# NOTE: It has some limitations due to registers width
 print_num:
 	push %bp
 	mov %sp, %bp
 
 	mov 4(%bp), %ax
-	add $48, %ax
+	or %ax, %ax
+	jz print_sum_done
+
+	push %ax
+	call _print_num
+	jmp print_num_end
+
+	print_sum_done:
+	add $48, %al
 	mov $0xE, %ah
 	int $0x10
 
+	print_num_end:
+	mov %bp, %sp
+	pop %bp
+	ret
+
+_print_num:
+	push %bp
+	mov %sp, %bp
+
+	mov 4(%bp), %ax
+	or %ax, %ax
+	jz _print_sum_done
+	mov $0, %dx
+	mov $10, %bx
+	div %bx
+	mov $0, %ah
+
+	# Save the environment
+	push %bp
+	push %dx
+	push %ax
+	call _print_num
+	mov %sp, %bp
+	mov (%bp), %ax
+	mov 2(%bp), %dx
+	mov 4(%bp), %bp
+
+	mov %dl, %al
+	add $48, %al
+	mov $0xE, %ah
+	int $0x10
+
+	_print_sum_done:
 	mov %bp, %sp
 	pop %bp
 	ret
