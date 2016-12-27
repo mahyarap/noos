@@ -1,62 +1,47 @@
-# Upon turning on the computer, the CPU starts working in the so-called
-# 16-bit real mode.
+#include "noos.h"
+
+/* 
+ * Upon turning on the computer, the CPU starts working in the so-called
+ * 16-bit real mode.
+ */
 .code16
-
-# The address the bootloader is loaded into
-.equ LOADOFF, 0x7C00
-
-# The magic number must be placed at 511th byte of the 1st sector. However some
-# BIOS' do not require this number for floppy disks.
-.equ MAGICNUM, 0xAA55
 
 .text
 .globl _start
 _start:
-	# Initialize the segment registers
-	cli
-	ljmp $0x0, $next_instruct
-	next_instruct:
-		xor %ax, %ax
-		mov %ax, %ds
-		mov %ax, %es
-		mov %ax, %fs
-		mov %ax, %gs
+	/* Initialization */
+	INIT()
 
-		# Set up the stack
-		mov %ax, %ss
-		mov $LOADOFF, %sp
-		sti
+	/* Print hello */
+	push $hello
+	call puts
 
-		# Print hello
-		push $hello
-		call puts
+	/* Print num_msg */
+	push $num_msg
+	call puts
 
-		# Print num_msg
-		push $num_msg
-		call puts
+	push $99
+	call print_num
+	/* ASCII code of + */
+	push $43
+	call putch
+	push $88
+	call print_num
+	/* ASCII code of = */
+	push $61
+	call putch
+	/* Do simple arithmetic */
+	push $99
+	push $88
+	call sum
+	/* Return value of sum */
+	push %ax
+	call print_num
 
-		push $130
-		call print_num
-		# ASCII code of +
-		push $43
-		call putch
-		push $202
-		call print_num
-		# ASCII code of =
-		push $61
-		call putch
-		# Do simple arithmetic
-		push $130
-		push $202
-		call sum
-		# Return value of sum
-		push %ax
-		call print_num
-
-		ret
+	ret
 
 puts:
-	# Prologue
+	/* Prologue */
 	push %bp
 	mov %sp, %bp
 
@@ -70,12 +55,12 @@ puts:
 		call putch
 		jmp puts_loop
 	puts_done:
-		# Epilogue	
+		/* Epilogue */	
 		mov %bp, %sp
 		pop %bp
 		ret
 
-# NOTE: It has some limitations due to registers width
+/* NOTE: It has some limitations due to registers width */
 print_num:
 	push %bp
 	mov %sp, %bp
@@ -110,7 +95,7 @@ _print_num:
 	div %bx
 	mov $0, %ah
 
-	# Save the environment
+	/* Save the environment */
 	push %bp
 	push %dx
 	push %ax

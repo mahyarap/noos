@@ -1,16 +1,18 @@
-AS = as
+CC = gcc
 LD = ld
 
-all: noos.img
+targets = helloworld.img
 
-noos.img: noos.o
-	$(LD) --omagic --oformat=binary --Ttext=0x7C00 -o $@ $^
+all: $(targets)
 
-noos.o: noos.s
-	$(AS) -o $@ $^
+%.img: %.o
+	$(LD) --omagic --oformat=binary --Ttext=0x7C00 -o $@ $<
+
+%.o: %.S
+	$(CC) -c -o $@ $<
 
 clean:
 	-rm -f *.o
-	-rm -f noos.img
+	-rm -f $(targets)
 
 .PHONY: clean
