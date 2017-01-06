@@ -17,6 +17,7 @@
 	next_instruct:; \
 		xor %ax, %ax; \
 		mov %ax, %ds; \
+		mov %ax, %es; \
 		mov %ax, %fs; \
 		mov %ax, %gs; \
 		mov %ax, %ss; \
