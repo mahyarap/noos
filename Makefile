@@ -1,7 +1,7 @@
 CC = gcc
 LD = ld
 
-targets = helloworld.img
+targets = helloworld.img guess.img
 
 all: $(targets)
 
